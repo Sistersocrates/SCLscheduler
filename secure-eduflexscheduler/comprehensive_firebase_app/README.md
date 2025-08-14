@@ -3,7 +3,7 @@
 A comprehensive, secure, and FERPA-compliant seminar management system built with React, Firebase, and modern web technologies.
 
 ## 🚀 Features
-
+ 
 ### 🔐 Security & Compliance
 - **FERPA-compliant** data protection and audit logging
 - **Google OAuth** authentication with role-based access control
