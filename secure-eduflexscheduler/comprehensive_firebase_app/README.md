@@ -66,7 +66,6 @@ A comprehensive, secure, and FERPA-compliant seminar management system built wit
 - Google OAuth credentials
 
 ## 🔧 Firebase Setup
-
 ### 1. Authentication
 - Enable Google OAuth in Firebase Console
 - Add your domain to authorized domains
@@ -130,16 +129,6 @@ The application is fully responsive and works seamlessly across:
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Configure environment variables in Vercel dashboard
-3. Deploy automatically on every push to main branch
-
-### Firebase Hosting
-1. Install Firebase CLI: `npm install -g firebase-tools`
-2. Login: `firebase login`
-3. Initialize: `firebase init hosting`
-4. Deploy: `firebase deploy --only hosting`
 
 ## 📊 Analytics & Monitoring
 
@@ -159,13 +148,6 @@ The application is fully responsive and works seamlessly across:
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue on GitHub
-- Check the documentation
-- Review Firebase console for configuration issues
 
 ## 🔄 Version History
 
