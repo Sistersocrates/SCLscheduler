@@ -64,7 +64,6 @@ A comprehensive, secure, and FERPA-compliant seminar management system built wit
 - Node.js 18+ and npm
 - Firebase project with Authentication and Firestore enabled
 - Google OAuth credentials
-   ```
 
 ## 🔧 Firebase Setup
 
@@ -72,8 +71,6 @@ A comprehensive, secure, and FERPA-compliant seminar management system built wit
 - Enable Google OAuth in Firebase Console
 - Add your domain to authorized domains
 - Configure OAuth consent screen
-
-
 
 ### 3. Required Collections
 - `users` - User profiles and roles
