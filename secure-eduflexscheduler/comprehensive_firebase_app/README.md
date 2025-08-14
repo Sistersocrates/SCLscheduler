@@ -60,49 +60,10 @@ A comprehensive, secure, and FERPA-compliant seminar management system built wit
 - **Version Control**: Git/GitHub
 
 ## 🚀 Quick Start
-
 ### Prerequisites
 - Node.js 18+ and npm
 - Firebase project with Authentication and Firestore enabled
 - Google OAuth credentials
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Sistersocrates/secure-eduflexscheduler.git
-   cd secure-eduflexscheduler/firebase_seminar_app
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update `.env` with your Firebase configuration:
-   ```env
-   VITE_FIREBASE_API_KEY=your_api_key
-   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=your_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   VITE_FIREBASE_APP_ID=your_app_id
-   VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
-   ```
-
-4. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Build for production**
-   ```bash
-   npm run build
    ```
 
 ## 🔧 Firebase Setup
@@ -112,44 +73,7 @@ A comprehensive, secure, and FERPA-compliant seminar management system built wit
 - Add your domain to authorized domains
 - Configure OAuth consent screen
 
-### 2. Firestore Database
-Create the following collections with security rules:
 
-```javascript
-// Firestore Security Rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Users collection
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read: if request.auth != null && 
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'counselor']);
-    }
-    
-    // Seminars collection
-    match /seminars/{seminarId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['teacher', 'admin']);
-    }
-    
-    // Enrollments collection
-    match /enrollments/{enrollmentId} {
-      allow read, write: if request.auth != null && 
-        (resource.data.studentId == request.auth.uid || 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['teacher', 'counselor', 'admin']);
-    }
-    
-    // Audit logs (admin only)
-    match /auditLogs/{logId} {
-      allow read: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-      allow write: if request.auth != null;
-    }
-  }
-}
-```
 
 ### 3. Required Collections
 - `users` - User profiles and roles
