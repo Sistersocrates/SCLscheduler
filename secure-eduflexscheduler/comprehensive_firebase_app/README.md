@@ -261,8 +261,6 @@ For support and questions:
 - ✅ Simple seminar management
 - ✅ Basic user roles
 
----
-
 **Built with ❤️ for educational institutions**
 
 🔒 **Secure** • 📚 **FERPA Compliant** • 🚀 **Modern** • 📱 **Responsive**
