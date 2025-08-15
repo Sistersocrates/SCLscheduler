@@ -28,7 +28,7 @@ import {
   getDownloadURL, 
   deleteObject 
 } from 'firebase/storage';
-import { db, auth, storage } from './firebase';
+import { db, auth, storage } from ./firebase_enhanced';
 
 // ==================== USER MANAGEMENT ====================
 
