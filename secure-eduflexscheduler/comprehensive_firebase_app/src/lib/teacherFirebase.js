@@ -18,7 +18,7 @@ import {
   increment
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db, storage, createAuditLog } from './firebase';
+import { db, storage, createAuditLog } from './firebase_enhanced'
 
 // Class Management Functions
 export const createClass = async (teacherId, classData) => {
