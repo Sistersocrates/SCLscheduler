@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
-import { signInWithGoogle, createUserProfile } ../lib/firebase_enhanced;
+import { signInWithGoogle, createUserProfile } from '../lib/firebase_enhanced';
 
 import { GraduationCap, Shield, Users, BookOpen, UserCheck, ChevronRight, CheckCircle } from 'lucide-react';
 
