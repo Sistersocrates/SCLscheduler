@@ -24,9 +24,11 @@ import {
   XCircle,
   Loader
 } from 'lucide-react';
+import CreateClassModal from './CreateClassModal';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [classes, setClasses] = useState([]);
   const [resourceRequests, setResourceRequests] = useState([]);
   const [dashboardStats, setDashboardStats] = useState({
@@ -211,7 +213,7 @@ const TeacherDashboard = () => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
       <div className="grid grid-cols-2 gap-3">
-        <button className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button onClick={() => setCreateModalOpen(true)} className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
           <Plus className="h-4 w-4 mr-2" />
           New Class
         </button>
@@ -284,7 +286,7 @@ const TeacherDashboard = () => {
           <h1 className="text-2xl font-bold text-gray-900">Teacher Dashboard</h1>
           <p className="text-gray-600">Welcome back, {user?.displayName}</p>
         </div>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+        <button onClick={() => setCreateModalOpen(true)} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
           Create New Class
         </button>
@@ -341,7 +343,7 @@ const TeacherDashboard = () => {
                 <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No classes yet</h3>
                 <p className="text-gray-600 mb-4">Create your first class to get started</p>
-                <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <button onClick={() => setCreateModalOpen(true)} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Class
                 </button>
@@ -399,6 +401,14 @@ const TeacherDashboard = () => {
           ))}
         </div>
       </div>
+      <CreateClassModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onClassCreated={() => {
+          setCreateModalOpen(false);
+          loadDashboardData();
+        }}
+      />
     </div>
   );
 };
