@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage_Enhanced';
 import HomePage from './pages/HomePage';
 import SpecialistDashboard from './components/specialist/SpecialistDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
+import AttendancePage from './pages/AttendancePage';
 
 // Placeholder components for future implementation
 const PlaceholderPage = ({ title, description }) => (
@@ -49,6 +50,12 @@ function App() {
               </ProtectedRoute>
             } />
             
+            <Route path="/attendance/:classId" element={
+              <ProtectedRoute requiredRole="teacher">
+                <AttendancePage />
+              </ProtectedRoute>
+            } />
+
             <Route path="/schedule" element={
               <ProtectedRoute requiredRole="student">
                 <PlaceholderPage 

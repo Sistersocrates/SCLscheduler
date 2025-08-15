@@ -24,6 +24,7 @@ import {
   XCircle,
   Loader
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CreateClassModal from './CreateClassModal';
 
 const TeacherDashboard = () => {
@@ -147,10 +148,10 @@ const TeacherDashboard = () => {
                 <Edit className="h-4 w-4 mr-1" />
                 Edit
               </button>
-              <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              <Link to={`/attendance/${classItem.id}`} className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                 <ClipboardCheck className="h-4 w-4 mr-1" />
                 Attendance
-              </button>
+              </Link>
             </div>
             
             <button className="p-1 text-gray-400 hover:text-gray-600">
