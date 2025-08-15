@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
-import { signOutUser } from '../../lib/firebase';
+import { signOutUser } from '../../lib/firebase_enhanced'
 import {
   Menu,
   X,
