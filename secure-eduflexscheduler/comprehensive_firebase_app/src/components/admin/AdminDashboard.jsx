@@ -12,6 +12,7 @@ import TenantManagement from './TenantManagement';
 import SystemConfiguration from './SystemConfiguration';
 import ReportingDashboard from './ReportingDashboard';
 import SystemLogs from './SystemLogs';
+import DataManagementView from './tools/DataManagementView';
 import { 
   Users,
   Building2,
@@ -462,7 +463,8 @@ const AdminDashboard = () => {
             { id: 'settings', name: 'System Settings', icon: Settings },
             { id: 'reports', name: 'Reports', icon: BarChart3 },
             { id: 'logs', name: 'System Logs', icon: FileText },
-            { id: 'security', name: 'Security', icon: Shield }
+            { id: 'security', name: 'Security', icon: Shield },
+            { id: 'data', name: 'Data Tools', icon: DatabaseZap }
           ].map(tab => {
             const Icon = tab.icon;
             return (
@@ -491,6 +493,7 @@ const AdminDashboard = () => {
         {activeTab === 'settings' && <SystemConfiguration />}
         {activeTab === 'reports' && <ReportingDashboard />}
         {activeTab === 'logs' && <SystemLogs />}
+        {activeTab === 'data' && <DataManagementView />}
         {activeTab === 'security' && (
           <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
