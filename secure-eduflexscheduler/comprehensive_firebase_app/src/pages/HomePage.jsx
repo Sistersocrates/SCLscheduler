@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
-import { getAvailableClasses, getStudentEnrollments } from '../lib/firebase_enhanced';
+import { getStudentEnrollments } from '../lib/firebase_enhanced';
 import {
   Calendar,
   BookOpen,
