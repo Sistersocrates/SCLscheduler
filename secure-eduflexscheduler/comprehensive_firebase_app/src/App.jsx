@@ -41,7 +41,7 @@ function App() {
             
             {/* Student Routes */}
             <Route path="/seminars" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="student">
                 <PlaceholderPage 
                   title="Browse Seminars" 
                   description="Discover and enroll in available seminars"
@@ -50,7 +50,7 @@ function App() {
             } />
             
             <Route path="/schedule" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="student">
                 <PlaceholderPage 
                   title="My Schedule" 
                   description="View your personal schedule and upcoming events"
@@ -59,7 +59,7 @@ function App() {
             } />
             
             <Route path="/enrollments" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="student">
                 <PlaceholderPage 
                   title="My Enrollments" 
                   description="Manage your seminar enrollments"
@@ -68,7 +68,7 @@ function App() {
             } />
             
             <Route path="/waitlists" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="student">
                 <PlaceholderPage 
                   title="Waitlists" 
                   description="View and manage your waitlist positions"
@@ -77,7 +77,7 @@ function App() {
             } />
             
             <Route path="/appointments" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="student">
                 <PlaceholderPage 
                   title="Appointments" 
                   description="Schedule and manage counseling appointments"
@@ -86,7 +86,7 @@ function App() {
             } />
             
             <Route path="/progress" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="student">
                 <PlaceholderPage 
                   title="Academic Progress" 
                   description="Track your academic progress and achievements"
@@ -96,7 +96,7 @@ function App() {
             
             {/* Teacher Routes */}
             <Route path="/my-seminars" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="teacher">
                 <PlaceholderPage 
                   title="My Seminars" 
                   description="Manage your seminars and course content"
@@ -105,7 +105,7 @@ function App() {
             } />
             
             <Route path="/rosters" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="teacher">
                 <PlaceholderPage 
                   title="Student Rosters" 
                   description="View and manage student rosters for your seminars"
@@ -114,7 +114,7 @@ function App() {
             } />
             
             <Route path="/attendance" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="teacher">
                 <PlaceholderPage 
                   title="Attendance" 
                   description="Take and manage student attendance"
@@ -123,7 +123,7 @@ function App() {
             } />
             
             <Route path="/grading" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="teacher">
                 <PlaceholderPage 
                   title="Grading" 
                   description="Grade assignments and manage student assessments"
@@ -132,7 +132,7 @@ function App() {
             } />
             
             <Route path="/reports" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="teacher">
                 <PlaceholderPage 
                   title="Reports" 
                   description="Generate and view teaching reports"
@@ -141,7 +141,7 @@ function App() {
             } />
             
             <Route path="/analytics" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="teacher">
                 <PlaceholderPage 
                   title="Analytics" 
                   description="View detailed analytics for your seminars"
@@ -151,7 +151,7 @@ function App() {
             
             {/* Counselor Routes */}
             <Route path="/student-management" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="counselor">
                 <PlaceholderPage 
                   title="Student Management" 
                   description="Manage and support student academic journeys"
@@ -160,7 +160,7 @@ function App() {
             } />
             
             <Route path="/counselor-appointments" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="counselor">
                 <PlaceholderPage 
                   title="Counselor Appointments" 
                   description="Manage counseling appointments and sessions"
@@ -169,7 +169,7 @@ function App() {
             } />
             
             <Route path="/student-progress" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="counselor">
                 <PlaceholderPage 
                   title="Student Progress" 
                   description="Monitor and track student academic progress"
@@ -178,7 +178,7 @@ function App() {
             } />
             
             <Route path="/counselor-reports" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="counselor">
                 <PlaceholderPage 
                   title="Counselor Reports" 
                   description="Generate student progress and counseling reports"
@@ -187,7 +187,7 @@ function App() {
             } />
             
             <Route path="/resources" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="counselor">
                 <PlaceholderPage 
                   title="Resources" 
                   description="Access counseling resources and materials"
