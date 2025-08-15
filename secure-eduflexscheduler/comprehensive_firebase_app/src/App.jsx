@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './components/AuthProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/LoginPage_Enhanced';
 import HomePage from './pages/HomePage';
 import SpecialistDashboard from './components/specialist/SpecialistDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
