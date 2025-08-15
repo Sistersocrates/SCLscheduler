@@ -26,7 +26,7 @@ import {
   getDownloadURL, 
   deleteObject 
 } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db, storage } from './firebase_enhanced'
 
 // Utility function to get tenant ID (for multi-school support)
 const getTenantId = (userId) => {
