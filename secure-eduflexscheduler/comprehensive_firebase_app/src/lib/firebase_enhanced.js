@@ -642,6 +642,6 @@ export const subscribeToUserProfile = (userId, callback) => {
   const userRef = doc(db, 'users', userId);
   return onSnapshot(userRef, callback);
 };
+export { getStudentEnrollments };
 
-export default app;
 
