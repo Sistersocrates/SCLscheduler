@@ -6,7 +6,7 @@ import {
   getStudentCredits, 
   getStudentNotifications,
   getStudentAttendance 
-} from '../../lib/firebase_enhanced';
+} from '../../lib/firebase';
 import ScheduleWidget from './ScheduleWidget';
 import EnrollmentWidget from './EnrollmentWidget';
 import CreditProgressWidget from './CreditProgressWidget';
