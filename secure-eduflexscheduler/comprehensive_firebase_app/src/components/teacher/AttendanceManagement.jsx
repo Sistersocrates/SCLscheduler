@@ -32,6 +32,7 @@ import {
   TrendingUp,
   BarChart3
 } from 'lucide-react';
+import AttendanceReportDashboard from './AttendanceReportDashboard';
 
 const AttendanceManagement = ({ classId, className }) => {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ const AttendanceManagement = ({ classId, className }) => {
   const [roster, setRoster] = useState([]);
   const [waitlist, setWaitlist] = useState([]);
   const [attendance, setAttendance] = useState([]);
+  const [history, setHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [attendanceRecords, setAttendanceRecords] = useState({});
   const [loading, setLoading] = useState(true);
@@ -48,6 +50,8 @@ const AttendanceManagement = ({ classId, className }) => {
     status: 'all',
     dateRange: 'week'
   });
+  const [editingRecordId, setEditingRecordId] = useState(null);
+  const [editingRecordData, setEditingRecordData] = useState({ status: '', notes: '' });
 
   useEffect(() => {
     if (classId && user) {
@@ -85,6 +89,15 @@ const AttendanceManagement = ({ classId, className }) => {
           };
         });
         setAttendanceRecords(todayRecords);
+      } else if (activeTab === 'history') {
+        const historyData = await getClassAttendance(user.uid, classId, {});
+        // sort by date descending, then by student name
+        historyData.sort((a, b) => {
+          const dateComparison = b.date - a.date;
+          if (dateComparison !== 0) return dateComparison;
+          return a.student.displayName.localeCompare(b.student.displayName);
+        });
+        setHistory(historyData);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -124,6 +137,17 @@ const AttendanceManagement = ({ classId, className }) => {
     }));
   };
 
+  const handleMarkAllPresent = () => {
+    const newRecords = { ...attendanceRecords };
+    roster.forEach(student => {
+      newRecords[student.studentId] = {
+        ...newRecords[student.studentId], // preserve existing notes/id
+        status: 'present'
+      };
+    });
+    setAttendanceRecords(newRecords);
+  };
+
   const saveAttendance = async () => {
     try {
       setSaving(true);
@@ -154,6 +178,31 @@ const AttendanceManagement = ({ classId, className }) => {
     } catch (error) {
       console.error('Error approving waitlist student:', error);
     }
+  };
+
+  const handleEdit = (record) => {
+    setEditingRecordId(record.id);
+    setEditingRecordData({ status: record.status, notes: record.notes || '' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRecordId(null);
+    setEditingRecordData({ status: '', notes: '' });
+  };
+
+  const handleSaveEdit = async (recordId) => {
+    try {
+      await updateAttendanceRecord(user.uid, recordId, editingRecordData);
+      handleCancelEdit();
+      // Optimistically update UI or just reload data
+      loadData();
+    } catch (error) {
+      console.error('Error updating attendance record:', error);
+    }
+  };
+
+  const handleEditingDataChange = (field, value) => {
+    setEditingRecordData(prev => ({ ...prev, [field]: value }));
   };
 
   const exportRoster = () => {
@@ -460,7 +509,9 @@ const AttendanceManagement = ({ classId, className }) => {
           {[
             { id: 'roster', name: 'Class Roster', icon: Users, count: roster.length },
             { id: 'waitlist', name: 'Waitlist', icon: Clock, count: waitlist.length },
-            { id: 'attendance', name: 'Attendance', icon: ClipboardCheck }
+            { id: 'attendance', name: 'Attendance', icon: ClipboardCheck },
+            { id: 'history', name: 'History', icon: Eye },
+            { id: 'reports', name: 'Reports', icon: BarChart3 }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -590,8 +641,17 @@ const AttendanceManagement = ({ classId, className }) => {
               <h2 className="text-lg font-semibold text-gray-900">
                 Take Attendance - {new Date(selectedDate).toLocaleDateString()}
               </h2>
-              <div className="text-sm text-gray-500">
-                {roster.length} students
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleMarkAllPresent}
+                  className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                  Mark All Present
+                </button>
+                <div className="text-sm text-gray-500">
+                  {roster.length} students
+                </div>
               </div>
             </div>
 
@@ -601,6 +661,90 @@ const AttendanceManagement = ({ classId, className }) => {
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'history' && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Full Attendance History
+          </h2>
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {history.map((record) => {
+                    const isEditing = editingRecordId === record.id;
+                    return (
+                      <tr key={record.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(record.date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{record.student?.displayName || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {isEditing ? (
+                            <select
+                              value={editingRecordData.status}
+                              onChange={(e) => handleEditingDataChange('status', e.target.value)}
+                              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            >
+                              <option>present</option>
+                              <option>absent</option>
+                              <option>late</option>
+                              <option>excused</option>
+                            </select>
+                          ) : (
+                            record.status
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={editingRecordData.notes}
+                              onChange={(e) => handleEditingDataChange('notes', e.target.value)}
+                              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              placeholder="Notes..."
+                            />
+                          ) : (
+                            record.notes
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          {isEditing ? (
+                            <div className="flex items-center space-x-2 justify-end">
+                              <button onClick={() => handleSaveEdit(record.id)} className="text-green-600 hover:text-green-900">Save</button>
+                              <button onClick={handleCancelEdit} className="text-red-600 hover:text-red-900">Cancel</button>
+                            </div>
+                          ) : (
+                            <button onClick={() => handleEdit(record)} className="text-blue-600 hover:text-blue-900">Edit</button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {history.length === 0 && (
+                    <tr>
+                      <td colSpan="5" className="text-center py-8 text-gray-500">No attendance history found for this class.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'reports' && (
+        <div className="mt-6">
+          <AttendanceReportDashboard classId={classId} className={className} />
         </div>
       )}
     </div>
