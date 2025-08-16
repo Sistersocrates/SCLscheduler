@@ -339,6 +339,38 @@ export const getStudentNotifications = async (studentId, filters = {}) => {
   }
 };
 
+export const getStudentAttendanceHistory = async (studentId) => {
+  try {
+    const q = query(
+      collection(db, 'attendance'),
+      where('studentId', '==', studentId),
+      orderBy('date', 'desc')
+    );
+
+    const querySnapshot = await getDocs(q);
+    const attendanceHistory = [];
+
+    for (const doc of querySnapshot.docs) {
+      const record = { id: doc.id, ...doc.data() };
+
+      if (record.classId) {
+        const classRef = doc(db, 'classes', record.classId);
+        const classSnap = await getDoc(classRef);
+        if (classSnap.exists()) {
+          record.className = classSnap.data().title;
+        }
+      }
+
+      attendanceHistory.push(record);
+    }
+
+    return attendanceHistory;
+  } catch (error) {
+    console.error('Error getting student attendance history:', error);
+    throw error;
+  }
+};
+
 export const markNotificationAsRead = async (notificationId) => {
   try {
     const notificationRef = doc(db, 'notifications', notificationId);

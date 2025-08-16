@@ -4,6 +4,10 @@ import { useAuth } from '../components/AuthProvider';
 import { signInWithGoogle, createUserProfile } from '../lib/firebase_enhanced';
 import { GraduationCap, Shield, Users, BookOpen, UserCheck, ChevronRight, CheckCircle } from 'lucide-react';
 
+// TODO: In a production environment, this should be replaced with a secure,
+// server-side validation call to a Firebase Function or a dedicated backend endpoint.
+const TEACHER_ACCESS_CODE = 'TEACHER_SECRET';
+
 const LoginPage = () => {
   const { user, loading } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -14,7 +18,8 @@ const LoginPage = () => {
     studentId: '',
     phoneNumber: '',
     employeeId: '',
-    specialization: ''
+    specialization: '',
+    accessCode: ''
   });
   const [error, setError] = useState('');
 
@@ -72,7 +77,8 @@ const LoginPage = () => {
       studentId: '',
       phoneNumber: '',
       employeeId: '',
-      specialization: ''
+      specialization: '',
+      accessCode: ''
     });
   };
 
@@ -81,6 +87,16 @@ const LoginPage = () => {
       setError('Please select your role');
       return;
     }
+
+    // Validate teacher access code
+    if (selectedRole === 'teacher') {
+      if (additionalInfo.accessCode !== TEACHER_ACCESS_CODE) {
+        setError('Invalid Teacher Access Code. Please check the code and try again.');
+        return;
+      }
+    }
+
+    setError(''); // Clear error on successful validation
     setStep(3);
   };
 
@@ -267,7 +283,7 @@ const LoginPage = () => {
                   </div>
                 )}
 
-                {(selectedRole === 'teacher' || selectedRole === 'admin') && (
+                {selectedRole === 'admin' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Employee ID <span className="text-gray-400">(Optional)</span>
@@ -280,6 +296,36 @@ const LoginPage = () => {
                       placeholder="Enter your employee ID"
                     />
                   </div>
+                )}
+
+                {selectedRole === 'teacher' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Employee ID <span className="text-gray-400">(Optional)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={additionalInfo.employeeId}
+                        onChange={(e) => setAdditionalInfo(prev => ({ ...prev, employeeId: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter your employee ID"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Teacher Access Code <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        value={additionalInfo.accessCode}
+                        onChange={(e) => setAdditionalInfo(prev => ({ ...prev, accessCode: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter teacher access code"
+                        required
+                      />
+                    </div>
+                  </>
                 )}
 
                 {selectedRole === 'counselor' && (
