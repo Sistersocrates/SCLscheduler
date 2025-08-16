@@ -7,7 +7,6 @@ import LoginPage from './pages/LoginPage_Enhanced';
 import HomePage from './pages/HomePage';
 import SpecialistDashboard from './components/specialist/SpecialistDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
-import AttendancePage from './pages/AttendancePage';
 
 // Placeholder components for future implementation
 const PlaceholderPage = ({ title, description }) => (
@@ -42,7 +41,7 @@ function App() {
             
             {/* Student Routes */}
             <Route path="/seminars" element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Browse Seminars" 
                   description="Discover and enroll in available seminars"
@@ -50,14 +49,8 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/attendance/:classId" element={
-              <ProtectedRoute requiredRole="teacher">
-                <AttendancePage />
-              </ProtectedRoute>
-            } />
-
             <Route path="/schedule" element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="My Schedule" 
                   description="View your personal schedule and upcoming events"
@@ -66,7 +59,7 @@ function App() {
             } />
             
             <Route path="/enrollments" element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="My Enrollments" 
                   description="Manage your seminar enrollments"
@@ -75,7 +68,7 @@ function App() {
             } />
             
             <Route path="/waitlists" element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Waitlists" 
                   description="View and manage your waitlist positions"
@@ -84,7 +77,7 @@ function App() {
             } />
             
             <Route path="/appointments" element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Appointments" 
                   description="Schedule and manage counseling appointments"
@@ -93,7 +86,7 @@ function App() {
             } />
             
             <Route path="/progress" element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Academic Progress" 
                   description="Track your academic progress and achievements"
@@ -103,7 +96,7 @@ function App() {
             
             {/* Teacher Routes */}
             <Route path="/my-seminars" element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="My Seminars" 
                   description="Manage your seminars and course content"
@@ -112,7 +105,7 @@ function App() {
             } />
             
             <Route path="/rosters" element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Student Rosters" 
                   description="View and manage student rosters for your seminars"
@@ -121,7 +114,7 @@ function App() {
             } />
             
             <Route path="/attendance" element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Attendance" 
                   description="Take and manage student attendance"
@@ -130,7 +123,7 @@ function App() {
             } />
             
             <Route path="/grading" element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Grading" 
                   description="Grade assignments and manage student assessments"
@@ -139,7 +132,7 @@ function App() {
             } />
             
             <Route path="/reports" element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Reports" 
                   description="Generate and view teaching reports"
@@ -148,7 +141,7 @@ function App() {
             } />
             
             <Route path="/analytics" element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Analytics" 
                   description="View detailed analytics for your seminars"
@@ -158,7 +151,7 @@ function App() {
             
             {/* Counselor Routes */}
             <Route path="/student-management" element={
-              <ProtectedRoute requiredRole="counselor">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Student Management" 
                   description="Manage and support student academic journeys"
@@ -167,7 +160,7 @@ function App() {
             } />
             
             <Route path="/counselor-appointments" element={
-              <ProtectedRoute requiredRole="counselor">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Counselor Appointments" 
                   description="Manage counseling appointments and sessions"
@@ -176,7 +169,7 @@ function App() {
             } />
             
             <Route path="/student-progress" element={
-              <ProtectedRoute requiredRole="counselor">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Student Progress" 
                   description="Monitor and track student academic progress"
@@ -185,7 +178,7 @@ function App() {
             } />
             
             <Route path="/counselor-reports" element={
-              <ProtectedRoute requiredRole="counselor">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Counselor Reports" 
                   description="Generate student progress and counseling reports"
@@ -194,7 +187,7 @@ function App() {
             } />
             
             <Route path="/resources" element={
-              <ProtectedRoute requiredRole="counselor">
+              <ProtectedRoute>
                 <PlaceholderPage 
                   title="Resources" 
                   description="Access counseling resources and materials"

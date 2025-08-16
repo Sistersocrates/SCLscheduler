@@ -198,21 +198,6 @@ export const getTeacherClasses = async (teacherId, filters = {}) => {
   }
 };
 
-export const getClassDetails = async (classId) => {
-  try {
-    const classRef = doc(db, 'classes', classId);
-    const classSnap = await getDoc(classRef);
-    if (classSnap.exists()) {
-      return { id: classSnap.id, ...classSnap.data() };
-    } else {
-      throw new Error("Class not found");
-    }
-  } catch (error) {
-    console.error('Error getting class details:', error);
-    throw error;
-  }
-};
-
 export const cloneClass = async (teacherId, classId, newTitle) => {
   try {
     const classRef = doc(db, 'classes', classId);
@@ -500,9 +485,9 @@ export const recordAttendance = async (teacherId, classId, attendanceData) => {
         classId,
         studentId: record.studentId,
         date: Timestamp.fromDate(new Date(attendanceData.date)),
-        status: record.status,
+        status: record.status, // 'present', 'absent', 'late', 'excused'
         notes: record.notes || '',
-        creditAwarded: record.creditAwarded,
+        creditAwarded: calculateCredit(record.status),
         recordedBy: teacherId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -512,6 +497,23 @@ export const recordAttendance = async (teacherId, classId, attendanceData) => {
       batch.set(attendanceRef, attendanceDoc);
       
       attendanceRecords.push({ id: attendanceRef.id, ...attendanceDoc });
+
+      // Update student credits if present
+      if (record.status === 'present') {
+        const creditDoc = {
+          studentId: record.studentId,
+          classId,
+          creditType: 'attendance',
+          creditAmount: attendanceDoc.creditAwarded,
+          earnedDate: attendanceDoc.date,
+          description: `Attendance credit for ${classData.title}`,
+          awardedBy: teacherId,
+          createdAt: serverTimestamp()
+        };
+
+        const creditRef = doc(collection(db, 'credits'));
+        batch.set(creditRef, creditDoc);
+      }
     }
 
     await batch.commit();
@@ -629,6 +631,7 @@ export const updateAttendanceRecord = async (teacherId, attendanceId, updateData
 
     const updatedData = {
       ...updateData,
+      creditAwarded: calculateCredit(updateData.status || attendanceData.status),
       updatedAt: serverTimestamp()
     };
 
