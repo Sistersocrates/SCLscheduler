@@ -473,6 +473,49 @@ const getStudentEnrollments = async (studentId) => {
   }
 };
 
+export const fetchStudentCredits = async (studentId) => {
+  try {
+    const q = query(collection(db, 'credits'), where('studentId', '==', studentId), orderBy('earnedDate', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const credits = [];
+    querySnapshot.forEach((doc) => {
+      credits.push({ id: doc.id, ...doc.data() });
+    });
+    return credits;
+  } catch (error) {
+    console.error('Error fetching student credits:', error);
+    throw error;
+  }
+};
+
+export const fetchStudentAttendance = async (studentId, filters = {}) => {
+  try {
+    let q = query(collection(db, 'attendance'), where('studentId', '==', studentId));
+
+    if (filters.classId) {
+      q = query(q, where('classId', '==', filters.classId));
+    }
+    if (filters.dateRange?.startDate) {
+      q = query(q, where('date', '>=', createTimestamp(filters.dateRange.startDate)));
+    }
+    if (filters.dateRange?.endDate) {
+      q = query(q, where('date', '<=', createTimestamp(filters.dateRange.endDate)));
+    }
+
+    q = query(q, orderBy('date', 'desc'));
+
+    const querySnapshot = await getDocs(q);
+    const attendance = [];
+    querySnapshot.forEach((doc) => {
+      attendance.push({ id: doc.id, ...doc.data() });
+    });
+    return attendance;
+  } catch (error) {
+    console.error('Error fetching student attendance:', error);
+    throw error;
+  }
+};
+
 const getTeacherClasses = async (teacherId) => {
   try {
     const q = query(

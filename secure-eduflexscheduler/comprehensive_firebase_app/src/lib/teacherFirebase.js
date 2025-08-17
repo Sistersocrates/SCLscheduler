@@ -65,6 +65,40 @@ export const createClass = async (teacherId, classData) => {
   }
 };
 
+export const getStudentCreditsForTeacher = async (teacherId, studentId) => {
+  try {
+    // Security Check: Verify the teacher has this student in at least one class.
+    const teacherClassesQuery = query(collection(db, 'classes'), where('teacherId', '==', teacherId));
+    const teacherClassesSnap = await getDocs(teacherClassesQuery);
+    const teacherClassIds = teacherClassesSnap.docs.map(doc => doc.id);
+
+    if (teacherClassIds.length === 0) {
+      throw new Error('Teacher has no classes.');
+    }
+
+    const enrollmentQuery = query(
+      collection(db, 'enrollments'),
+      where('studentId', '==', studentId),
+      where('classId', 'in', teacherClassIds),
+      limit(1)
+    );
+    const enrollmentSnap = await getDocs(enrollmentQuery);
+
+    if (enrollmentSnap.empty) {
+      throw new Error('Unauthorized: Teacher does not have this student in any class.');
+    }
+
+    // If authorized, fetch the credit history.
+    // Note: We need a generic fetchStudentCredits function. Assuming it's in firebase_enhanced.
+    const { fetchStudentCredits } = await import('./firebase_enhanced');
+    return await fetchStudentCredits(studentId);
+
+  } catch (error) {
+    console.error('Error getting student credits for teacher:', error);
+    throw error;
+  }
+};
+
 export const updateClass = async (teacherId, classId, updateData) => {
   try {
     const classRef = doc(db, 'classes', classId);
@@ -718,6 +752,78 @@ export const getAttendanceStats = async (teacherId, classId) => {
 
   } catch (error) {
     console.error('Error getting attendance stats:', error);
+    throw error;
+  }
+};
+
+export const getAggregateAttendanceForTeacher = async (teacherId) => {
+  try {
+    const teacherClasses = await getTeacherClasses(teacherId);
+    if (teacherClasses.length === 0) {
+      return { totalRecords: 0, overallAttendanceRate: 0, statsByStatus: {}, absencesByStudent: [], attendanceOverTime: [] };
+    }
+    const teacherClassIds = teacherClasses.map(c => c.id);
+
+    const attendanceQuery = query(collection(db, 'attendance'), where('classId', 'in', teacherClassIds));
+    const attendanceSnap = await getDocs(attendanceQuery);
+
+    const allRecords = [];
+    for (const doc of attendanceSnap.docs) {
+        const attendanceData = { id: doc.id, ...doc.data() };
+        // We need student details for the report.
+        const studentRef = doc(db, 'users', attendanceData.studentId);
+        const studentSnap = await getDoc(studentRef);
+        if (studentSnap.exists()) {
+            attendanceData.student = { id: studentSnap.id, ...studentSnap.data() };
+        }
+        allRecords.push(attendanceData);
+    }
+
+    if (allRecords.length === 0) {
+      return { totalRecords: 0, overallAttendanceRate: 0, statsByStatus: {}, absencesByStudent: [], attendanceOverTime: [] };
+    }
+
+    // Reuse the same aggregation logic
+    const statsByStatus = allRecords.reduce((acc, record) => {
+      acc[record.status] = (acc[record.status] || 0) + 1;
+      return acc;
+    }, { present: 0, absent: 0, late: 0, excused: 0 });
+
+    const totalPossibleRecords = allRecords.length - (statsByStatus.excused || 0);
+    const overallAttendanceRate = totalPossibleRecords > 0 ? ((statsByStatus.present || 0) / totalPossibleRecords) * 100 : 0;
+
+    const absences = {};
+    allRecords.forEach(record => {
+      if (record.status === 'absent') {
+        if (!absences[record.studentId]) {
+          absences[record.studentId] = { count: 0, student: record.student };
+        }
+        absences[record.studentId].count++;
+      }
+    });
+    const absencesByStudent = Object.values(absences).sort((a, b) => b.count - a.count);
+
+    const byDate = {};
+    allRecords.forEach(record => {
+      const dateStr = new Date(record.date.toDate()).toISOString().split('T')[0];
+      if (!byDate[dateStr]) {
+        byDate[dateStr] = { present: 0, absent: 0, late: 0, excused: 0 };
+      }
+      byDate[dateStr][record.status]++;
+    });
+    const attendanceOverTime = Object.keys(byDate).map(date => ({ date, ...byDate[date] })).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return {
+      totalRecords: allRecords.length,
+      overallAttendanceRate: Math.round(overallAttendanceRate),
+      statsByStatus,
+      absencesByStudent,
+      attendanceOverTime,
+      classCount: teacherClasses.length
+    };
+
+  } catch (error) {
+    console.error('Error getting aggregate attendance stats:', error);
     throw error;
   }
 };

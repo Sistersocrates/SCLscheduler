@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchStudentCredits } from '@/lib/services/studentApiService'; // Assuming this service exists
+import { fetchStudentCredits } from '../../../lib/firebase_enhanced';
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
