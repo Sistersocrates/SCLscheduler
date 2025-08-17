@@ -4,8 +4,11 @@ import {
   getTeacherClasses, 
   getClassRoster, 
   getTeacherResourceRequests,
-  subscribeToTeacherClasses 
+  subscribeToTeacherClasses,
+  deleteClass,
+  cloneClass
 } from '../../lib/teacherFirebase';
+import toast from 'react-hot-toast';
 import { 
   BookOpen, 
   Users, 
@@ -24,9 +27,15 @@ import {
   XCircle,
   Loader
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import CreateClassModal from './CreateClassModal';
+import EditClassModal from './EditClassModal';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedClassForEdit, setSelectedClassForEdit] = useState(null);
   const [classes, setClasses] = useState([]);
   const [resourceRequests, setResourceRequests] = useState([]);
   const [dashboardStats, setDashboardStats] = useState({
@@ -48,15 +57,12 @@ const TeacherDashboard = () => {
     try {
       setLoading(true);
       
-      // Load teacher's classes
       const teacherClasses = await getTeacherClasses(user.uid);
       setClasses(teacherClasses);
 
-      // Load resource requests
       const requests = await getTeacherResourceRequests(user.uid);
       setResourceRequests(requests);
 
-      // Calculate dashboard stats
       let totalStudents = 0;
       for (const classItem of teacherClasses) {
         totalStudents += classItem.currentEnrollment || 0;
@@ -68,13 +74,40 @@ const TeacherDashboard = () => {
         totalClasses: teacherClasses.length,
         totalStudents,
         pendingRequests,
-        attendanceRate: 85 // This would be calculated from actual attendance data
+        attendanceRate: 85
       });
 
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleArchiveClass = async (classId) => {
+    if (window.confirm("Are you sure you want to archive this class?")) {
+      try {
+        await deleteClass(user.uid, classId, true);
+        toast.success("Class archived successfully.");
+        loadDashboardData();
+      } catch (error) {
+        console.error("Error archiving class:", error);
+        toast.error(error.message || "Failed to archive class.");
+      }
+    }
+  };
+
+  const handleCloneClass = async (classToClone) => {
+    const newTitle = window.prompt("Enter a new title for the cloned class:", `${classToClone.title} (Copy)`);
+    if (newTitle) {
+      try {
+        await cloneClass(user.uid, classToClone.id, newTitle);
+        toast.success("Class cloned successfully.");
+        loadDashboardData();
+      } catch (error) {
+        console.error("Error cloning class:", error);
+        toast.error(error.message || "Failed to clone class.");
+      }
     }
   };
 
@@ -101,74 +134,107 @@ const TeacherDashboard = () => {
     </div>
   );
 
-  const ClassCard = ({ classItem }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center space-x-2 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900">{classItem.title}</h3>
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-              classItem.status === 'published' 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-yellow-100 text-yellow-800'
-            }`}>
-              {classItem.status}
-            </span>
-          </div>
-          
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-            {classItem.description}
-          </p>
-          
-          <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4">
-            <div className="flex items-center space-x-1">
-              <Clock className="h-4 w-4" />
-              <span>Hour {classItem.hour}</span>
+  const ClassCard = ({ classItem }) => {
+    const [isMenuOpen, setMenuOpen] = useState(false);
+
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900">{classItem.title}</h3>
+              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                classItem.status === 'published'
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-yellow-100 text-yellow-800'
+              }`}>
+                {classItem.status}
+              </span>
             </div>
-            <div className="flex items-center space-x-1">
-              <MapPin className="h-4 w-4" />
-              <span>{classItem.room || 'Room TBD'}</span>
+
+            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+              {classItem.description}
+            </p>
+
+            <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4">
+              <div className="flex items-center space-x-1">
+                <Clock className="h-4 w-4" />
+                <span>Hour {classItem.hour}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <MapPin className="h-4 w-4" />
+                <span>{classItem.room || 'Room TBD'}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Users className="h-4 w-4" />
+                <span>{classItem.currentEnrollment || 0}/{classItem.capacity}</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-1">
-              <Users className="h-4 w-4" />
-              <span>{classItem.currentEnrollment || 0}/{classItem.capacity}</span>
+
+            <div className="flex items-center justify-between">
+              <div className="flex space-x-2">
+                <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
+                </button>
+                <button onClick={() => {
+                  setSelectedClassForEdit(classItem);
+                  setEditModalOpen(true);
+                }} className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </button>
+                <Link to={`/attendance/${classItem.id}`} className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  <ClipboardCheck className="h-4 w-4 mr-1" />
+                  Attendance
+                </Link>
+              </div>
+
+              <div className="relative">
+                <button onClick={() => setMenuOpen(!isMenuOpen)} className="p-1 text-gray-400 hover:text-gray-600">
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
+                {isMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          handleCloneClass(classItem);
+                          setMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Clone Class
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleArchiveClass(classItem.id);
+                          setMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                      >
+                        Archive Class
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex space-x-2">
-              <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                <Eye className="h-4 w-4 mr-1" />
-                View
-              </button>
-              <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                <Edit className="h-4 w-4 mr-1" />
-                Edit
-              </button>
-              <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                <ClipboardCheck className="h-4 w-4 mr-1" />
-                Attendance
-              </button>
+          {classItem.imageUrl && (
+            <div className="ml-4">
+              <img
+                src={classItem.imageUrl}
+                alt={classItem.title}
+                className="w-16 h-16 rounded-lg object-cover"
+              />
             </div>
-            
-            <button className="p-1 text-gray-400 hover:text-gray-600">
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
-          </div>
+          )}
         </div>
-        
-        {classItem.imageUrl && (
-          <div className="ml-4">
-            <img 
-              src={classItem.imageUrl} 
-              alt={classItem.title}
-              className="w-16 h-16 rounded-lg object-cover"
-            />
-          </div>
-        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   const ResourceRequestCard = ({ request }) => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -211,7 +277,7 @@ const TeacherDashboard = () => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
       <div className="grid grid-cols-2 gap-3">
-        <button className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button onClick={() => setCreateModalOpen(true)} className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
           <Plus className="h-4 w-4 mr-2" />
           New Class
         </button>
@@ -278,19 +344,17 @@ const TeacherDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Teacher Dashboard</h1>
           <p className="text-gray-600">Welcome back, {user?.displayName}</p>
         </div>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+        <button onClick={() => setCreateModalOpen(true)} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
           Create New Class
         </button>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Classes"
@@ -322,9 +386,7 @@ const TeacherDashboard = () => {
         />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Classes Section */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">My Classes</h2>
@@ -341,7 +403,7 @@ const TeacherDashboard = () => {
                 <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No classes yet</h3>
                 <p className="text-gray-600 mb-4">Create your first class to get started</p>
-                <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <button onClick={() => setCreateModalOpen(true)} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Class
                 </button>
@@ -350,11 +412,9 @@ const TeacherDashboard = () => {
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
           <QuickActions />
           
-          {/* Resource Requests */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Resource Requests</h3>
@@ -376,7 +436,6 @@ const TeacherDashboard = () => {
         </div>
       </div>
 
-      {/* Upcoming Classes */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Schedule</h3>
         <div className="space-y-3">
@@ -399,9 +458,29 @@ const TeacherDashboard = () => {
           ))}
         </div>
       </div>
+
+      <CreateClassModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onClassCreated={() => {
+          setCreateModalOpen(false);
+          loadDashboardData();
+        }}
+      />
+
+      {selectedClassForEdit && (
+        <EditClassModal
+          isOpen={isEditModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          onClassUpdated={() => {
+            setEditModalOpen(false);
+            loadDashboardData();
+          }}
+          classData={selectedClassForEdit}
+        />
+      )}
     </div>
   );
 };
 
 export default TeacherDashboard;
-

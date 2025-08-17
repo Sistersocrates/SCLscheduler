@@ -652,6 +652,76 @@ export const updateAttendanceRecord = async (teacherId, attendanceId, updateData
   }
 };
 
+export const getAttendanceStats = async (teacherId, classId) => {
+  try {
+    // We already have getClassAttendance, let's reuse it to get all records.
+    const allRecords = await getClassAttendance(teacherId, classId, {});
+
+    if (allRecords.length === 0) {
+      return {
+        totalRecords: 0,
+        overallAttendanceRate: 0,
+        statsByStatus: { present: 0, absent: 0, late: 0, excused: 0 },
+        absencesByStudent: [],
+        attendanceOverTime: [],
+      };
+    }
+
+    // 1. Calculate stats by status
+    const statsByStatus = allRecords.reduce((acc, record) => {
+      acc[record.status] = (acc[record.status] || 0) + 1;
+      return acc;
+    }, { present: 0, absent: 0, late: 0, excused: 0 });
+
+    // 2. Calculate overall attendance rate
+    const totalPossibleRecords = allRecords.length - (statsByStatus.excused || 0);
+    const overallAttendanceRate = totalPossibleRecords > 0
+      ? ((statsByStatus.present || 0) / totalPossibleRecords) * 100
+      : 0;
+
+    // 3. Calculate absences by student
+    const absences = {};
+    allRecords.forEach(record => {
+      if (record.status === 'absent') {
+        if (!absences[record.studentId]) {
+          absences[record.studentId] = {
+            count: 0,
+            student: record.student
+          };
+        }
+        absences[record.studentId].count++;
+      }
+    });
+    const absencesByStudent = Object.values(absences).sort((a, b) => b.count - a.count);
+
+    // 4. Aggregate attendance over time (by date)
+    const byDate = {};
+    allRecords.forEach(record => {
+      const dateStr = new Date(record.date).toISOString().split('T')[0];
+      if (!byDate[dateStr]) {
+        byDate[dateStr] = { present: 0, absent: 0, late: 0, excused: 0 };
+      }
+      byDate[dateStr][record.status]++;
+    });
+    const attendanceOverTime = Object.keys(byDate).map(date => ({
+      date,
+      ...byDate[date]
+    })).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return {
+      totalRecords: allRecords.length,
+      overallAttendanceRate: Math.round(overallAttendanceRate),
+      statsByStatus,
+      absencesByStudent,
+      attendanceOverTime,
+    };
+
+  } catch (error) {
+    console.error('Error getting attendance stats:', error);
+    throw error;
+  }
+};
+
 // Resource Request Functions
 export const createResourceRequest = async (teacherId, requestData) => {
   try {

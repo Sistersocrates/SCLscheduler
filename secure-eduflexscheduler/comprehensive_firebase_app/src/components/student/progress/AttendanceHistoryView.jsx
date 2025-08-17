@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchStudentAttendance } from '@/lib/services/studentApiService'; 
+import { fetchStudentAttendance } from '@/lib/services/studentApiService';
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,8 +25,8 @@ const AttendanceHistoryView = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchStudentAttendance(user.profile.id); 
-        setAttendanceRecords(data); 
+        const data = await fetchStudentAttendance(user.profile.id);
+        setAttendanceRecords(data);
       } catch (err) {
         console.error("Failed to load attendance history:", err);
         setError(err.message || "Could not load attendance records.");
@@ -46,10 +46,10 @@ const AttendanceHistoryView = () => {
     status = status?.toLowerCase();
     if (status === 'present') return <CheckSquare className="text-emerald-400" />;
     if (status === 'absent') return <XSquare className="text-red-400" />;
-    if (status === 'tardy') return <Clock className="text-amber-400" />; 
+    if (status === 'tardy') return <Clock className="text-amber-400" />;
     return <AlertCircle className="text-slate-500" />;
   };
-  
+
   const placeholderRecords = [
     { id: 1, date: '2025-05-20', class_name: 'Algebra II', status: 'present', seminar_title: 'Advanced Math Seminar' },
     { id: 2, date: '2025-05-20', class_name: 'English Lit', status: 'present', seminar_title: 'Shakespeare Explored' },
@@ -68,7 +68,7 @@ const AttendanceHistoryView = () => {
     );
   }
   
-  if (error && attendanceRecords.length === 0) { 
+  if (error && attendanceRecords.length === 0) {
     return (
       <Card className="bg-red-900/20 border-red-700/50 shadow-xl">
         <CardHeader><CardTitle className="text-red-300 flex items-center"><AlertCircle className="mr-2"/>Error</CardTitle></CardHeader>
@@ -80,14 +80,14 @@ const AttendanceHistoryView = () => {
 
   return (
     <div className="space-y-6">
-      <motion.h1 
+      <motion.h1
         initial={{ opacity:0, y:-20 }} animate={{ opacity:1, y:0 }}
         className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-500 to-teal-500"
       >
         Attendance History
       </motion.h1>
 
-      {displayRecords.length === 0 && !error ? ( 
+      {displayRecords.length === 0 && !error ? (
         <div className="text-center py-12 bg-slate-800/40 rounded-lg shadow-inner">
           <CalendarClock className="w-16 h-16 text-slate-600 mx-auto mb-4" />
           <p className="text-xl text-slate-400">No attendance records found.</p>

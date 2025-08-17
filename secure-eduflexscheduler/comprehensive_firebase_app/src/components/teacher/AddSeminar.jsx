@@ -24,7 +24,7 @@ const AddSeminar = () => {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",

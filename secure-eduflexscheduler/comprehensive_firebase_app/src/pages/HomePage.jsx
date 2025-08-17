@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
-import { getStudentEnrollments } from '../lib/firebase_enhanced';
+import { getAvailableClasses, getStudentEnrollments } from '../lib/firebase_enhanced';
 import {
   Calendar,
   BookOpen,
@@ -42,14 +42,14 @@ const HomePage = () => {
         if (userRole === 'student') {
           const enrollments = await getStudentEnrollments(user.uid);
           const classes = await getAvailableClasses();
-          
+
           setStats({
             enrolledSeminars: enrollments.length,
             completedSeminars: enrollments.filter(e => e.status === 'completed').length,
             upcomingEvents: enrollments.filter(e => e.status === 'enrolled').length,
             totalCredits: enrollments.reduce((sum, e) => sum + (e.class?.credits || 0), 0)
           });
-          
+
           setUpcomingSeminars(classes.slice(0, 3));
           setRecentActivity([
             { type: 'enrollment', message: 'Enrolled in Advanced React Patterns', time: '2 hours ago' },
@@ -58,14 +58,14 @@ const HomePage = () => {
           ]);
         } else if (userRole === 'teacher') {
           const classes = await getAvailableClasses();
-          
+
           setStats({
             mySeminars: classes.length,
             totalStudents: classes.reduce((sum, s) => sum + (s.currentEnrollment || 0), 0),
             activeSeminars: classes.filter(s => s.status === 'active').length,
             avgRating: 4.7
           });
-          
+
           setRecentActivity([
             { type: 'enrollment', message: '5 new students enrolled in React Basics', time: '1 hour ago' },
             { type: 'completion', message: 'Graded assignments for Advanced JavaScript', time: '3 hours ago' },
@@ -87,7 +87,7 @@ const HomePage = () => {
   const getGreeting = () => {
     const hour = new Date().getHours();
     const name = userProfile?.displayName || user?.displayName || 'there';
-    
+
     if (hour < 12) return `Good morning, ${name}!`;
     if (hour < 17) return `Good afternoon, ${name}!`;
     return `Good evening, ${name}!`;
@@ -312,14 +312,14 @@ const HomePage = () => {
             <h2 className="text-lg font-semibold text-gray-900">
               {userRole === 'student' ? 'Available Seminars' : 'Quick Links'}
             </h2>
-            <Link 
-              to={userRole === 'student' ? '/seminars' : '/schedule'} 
+            <Link
+              to={userRole === 'student' ? '/seminars' : '/schedule'}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
               View all
             </Link>
           </div>
-          
+
           {userRole === 'student' ? (
             <div className="space-y-4">
               {upcomingSeminars.map((seminar, index) => (
@@ -369,7 +369,7 @@ const HomePage = () => {
           {userRole === 'counselor' && 'Student Support Overview'}
           {userRole === 'admin' && 'System Overview'}
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {userRole === 'student' && (
             <>
@@ -387,7 +387,7 @@ const HomePage = () => {
               </div>
             </>
           )}
-          
+
           {userRole === 'teacher' && (
             <>
               <div className="text-center">
@@ -404,7 +404,7 @@ const HomePage = () => {
               </div>
             </>
           )}
-          
+
           {userRole === 'counselor' && (
             <>
               <div className="text-center">
@@ -421,7 +421,7 @@ const HomePage = () => {
               </div>
             </>
           )}
-          
+
           {userRole === 'admin' && (
             <>
               <div className="text-center">
@@ -445,4 +445,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
