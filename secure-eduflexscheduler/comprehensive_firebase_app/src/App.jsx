@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import SpecialistDashboard from './components/specialist/SpecialistDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
 import StudentProgressView from './components/student/progress/StudentProgressView';
+import StudentScheduleView from './components/student/schedule/StudentScheduleView';
 
 // Placeholder components for future implementation
 const PlaceholderPage = ({ title, description }) => (
@@ -52,10 +53,7 @@ function App() {
             
             <Route path="/schedule" element={
               <ProtectedRoute>
-                <PlaceholderPage 
-                  title="My Schedule" 
-                  description="View your personal schedule and upcoming events"
-                />
+                <StudentScheduleView />
               </ProtectedRoute>
             } />
             
