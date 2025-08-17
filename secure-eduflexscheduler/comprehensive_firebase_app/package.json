@@ -23,6 +23,8 @@
     "react-hot-toast": "^2.4.1",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.2"
+        "framer-motion": "^11.3.22",
+    
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
