@@ -9,6 +9,7 @@ import SpecialistDashboard from './components/specialist/SpecialistDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
 import StudentProgressView from './components/student/progress/StudentProgressView';
 import StudentScheduleView from './components/student/schedule/StudentScheduleView';
+import GlobalAttendanceReport from './components/teacher/GlobalAttendanceReport';
 
 // Placeholder components for future implementation
 const PlaceholderPage = ({ title, description }) => (
@@ -127,12 +128,9 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/reports" element={
+            <Route path="/teacher/reports" element={
               <ProtectedRoute>
-                <PlaceholderPage 
-                  title="Reports" 
-                  description="Generate and view teaching reports"
-                />
+                <GlobalAttendanceReport />
               </ProtectedRoute>
             } />
             

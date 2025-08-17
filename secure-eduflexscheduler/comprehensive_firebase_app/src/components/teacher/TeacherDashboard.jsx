@@ -289,10 +289,10 @@ const TeacherDashboard = () => {
           <Users className="h-4 w-4 mr-2" />
           View Rosters
         </button>
-        <button className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <Link to="/teacher/reports" className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
           <TrendingUp className="h-4 w-4 mr-2" />
           View Reports
-        </button>
+        </Link>
       </div>
     </div>
   );

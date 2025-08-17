@@ -30,9 +30,17 @@ import {
   Edit,
   Eye,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Award // For the new button
 } from 'lucide-react';
 import AttendanceReportDashboard from './AttendanceReportDashboard';
+import StudentCreditReport from './StudentCreditReport';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const AttendanceManagement = ({ classId, className }) => {
   const { user } = useAuth();
@@ -52,6 +60,7 @@ const AttendanceManagement = ({ classId, className }) => {
   });
   const [editingRecordId, setEditingRecordId] = useState(null);
   const [editingRecordData, setEditingRecordData] = useState({ status: '', notes: '' });
+  const [viewingStudent, setViewingStudent] = useState(null); // { id, displayName }
 
   useEffect(() => {
     if (classId && user) {
@@ -360,8 +369,12 @@ const AttendanceManagement = ({ classId, className }) => {
         </div>
 
         <div className="flex-shrink-0">
-          <button className="p-1 text-gray-400 hover:text-gray-600">
-            <MoreHorizontal className="h-4 w-4" />
+          <button
+            onClick={() => setViewingStudent({ id: student.student.id, displayName: student.student.displayName })}
+            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-100 rounded-full"
+            title="View Progress Report"
+          >
+            <Award className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -746,6 +759,20 @@ const AttendanceManagement = ({ classId, className }) => {
         <div className="mt-6">
           <AttendanceReportDashboard classId={classId} className={className} />
         </div>
+      )}
+
+      {viewingStudent && (
+        <Dialog open={!!viewingStudent} onOpenChange={() => setViewingStudent(null)}>
+            <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                    <DialogTitle>Progress Report for {viewingStudent.displayName}</DialogTitle>
+                </DialogHeader>
+                <StudentCreditReport
+                    studentId={viewingStudent.id}
+                    studentName={viewingStudent.displayName}
+                />
+            </DialogContent>
+        </Dialog>
       )}
     </div>
   );
