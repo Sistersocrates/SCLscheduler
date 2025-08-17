@@ -12,6 +12,7 @@ import EnrollmentWidget from './EnrollmentWidget';
 import CreditProgressWidget from './CreditProgressWidget';
 import NotificationCenter from './NotificationCenter';
 import QuickActions from './QuickActions';
+import { Link } from 'react-router-dom';
 import { Calendar, BookOpen, Award, Bell, Clock, TrendingUp } from 'lucide-react';
 
 const StudentDashboard = () => {
@@ -334,6 +335,15 @@ const StudentDashboard = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       {Math.max(24 - dashboardData.stats.totalCredits, 0)} credits remaining
                     </p>
+                  </div>
+
+                  <div className="mt-6 text-center">
+                    <Link
+                      to="/progress"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      View Full Report
+                    </Link>
                   </div>
                 </div>
               </div>

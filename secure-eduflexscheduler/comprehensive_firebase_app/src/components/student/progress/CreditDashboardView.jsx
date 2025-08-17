@@ -37,7 +37,23 @@ const CreditDashboardView = () => {
           summary.types[credit.credit_type].count += 1;
         });
         
-        setCreditsData({ summary, details: rawCredits });
+        // Sort credits by date ascending to calculate running total correctly
+        const sortedCredits = [...rawCredits].sort((a, b) => new Date(a.earned_date) - new Date(b.earned_date));
+
+        let runningTotal = 0;
+        const creditsWithRunningTotal = sortedCredits.map(credit => {
+          runningTotal += parseFloat(credit.credit_amount || 0);
+          return { ...credit, running_total: runningTotal };
+        });
+
+        // Create a map for easy lookup
+        const runningTotalMap = new Map(creditsWithRunningTotal.map(c => [c.id, c.running_total]));
+
+        // Add the running total to the display-sorted details array (newest first)
+        const detailsForDisplay = [...rawCredits].sort((a, b) => new Date(b.earned_date) - new Date(a.earned_date));
+        const finalDetails = detailsForDisplay.map(c => ({...c, running_total: runningTotalMap.get(c.id) }));
+
+        setCreditsData({ summary, details: finalDetails });
 
       } catch (err) {
         console.error("Failed to load credit data:", err);
@@ -163,6 +179,7 @@ const CreditDashboardView = () => {
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Type</th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Amount</th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Date Earned</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Running Total</th>
                   </tr>
                 </thead>
                 <tbody className="bg-slate-800/30 divide-y divide-slate-700/70">
@@ -178,6 +195,7 @@ const CreditDashboardView = () => {
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-300 capitalize">{credit.credit_type}</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-emerald-300">{parseFloat(credit.credit_amount || 0).toFixed(2)}</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-400">{new Date(credit.earned_date).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-sky-300">{credit.running_total?.toFixed(2)}</td>
                     </motion.tr>
                   ))}
                 </tbody>

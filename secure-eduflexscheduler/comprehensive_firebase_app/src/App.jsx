@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage_Enhanced';
 import HomePage from './pages/HomePage';
 import SpecialistDashboard from './components/specialist/SpecialistDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
+import StudentProgressView from './components/student/progress/StudentProgressView';
 
 // Placeholder components for future implementation
 const PlaceholderPage = ({ title, description }) => (
@@ -87,10 +88,7 @@ function App() {
             
             <Route path="/progress" element={
               <ProtectedRoute>
-                <PlaceholderPage 
-                  title="Academic Progress" 
-                  description="Track your academic progress and achievements"
-                />
+                <StudentProgressView />
               </ProtectedRoute>
             } />
             
